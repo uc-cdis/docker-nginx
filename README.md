@@ -7,6 +7,16 @@ regarding contributing and issues.
 The full readme is generated over in [docker-library/docs](https://github.com/docker-library/docs),
 specifically in [docker-library/docs/nginx](https://github.com/docker-library/docs/tree/master/nginx).
 
+## CTDS Customization
+
+```
+git remote add nginx https://github.com/nginxinc/docker-nginx.git
+
+git rebase cdis nginx/whatever-version-you-want
+
+fix/customize as necessary
+```
+
 ## CTDS Additions
 
 Add more_headers module to mainline/alpine-perl
