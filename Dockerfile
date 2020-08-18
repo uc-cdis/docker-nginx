@@ -74,10 +74,10 @@ RUN nginver=$(nginx -v 2>&1 | awk -F / '{ print $2 }') && \
 #RUN apt update && apt install openjdk-11-jre rsync zip unzip -y && apt clean;
 
 COPY logrotate-nginx.conf /etc/logrotate.d/nginx
-COPY ./nginx.conf ./
 
 RUN mkdir -p /var/www/metrics/ && chmod +x /dockerrun.sh
 
 EXPOSE 80
 STOPSIGNAL SIGTERM
-CMD nginx -g 'daemon off;'
+
+ENTRYPOINT ["sh", "/dockerrun.sh"]
