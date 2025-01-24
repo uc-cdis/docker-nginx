@@ -8,7 +8,7 @@ LABEL name="revproxy-nginx-modsec"
 # Install all necessary packages in one layer
 RUN dnf update -y && \
     dnf install -y \
-    nginx \
+    nginx-module-njs \
     gcc \
     gcc-c++ \
     git \
@@ -60,8 +60,8 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     cd nginx-${NGINX_VERSION} && \
     ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
     make modules && \
-    mkdir -p /usr/lib64/nginx/modules/ && \
-    cp objs/ngx_http_modsecurity_module.so /usr/lib64/nginx/modules/
+    mkdir -p /etc/nginx/modules/ && \
+    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/
 
 # Set up ModSecurity configuration
 RUN mkdir -p /etc/nginx/modsec && \
