@@ -5,10 +5,18 @@ FROM quay.io/cdis/amazonlinux-base:${AZLINUX_BASE_VERSION}
 
 LABEL name="revproxy-nginx-modsec"
 
+
+# https://nginx.org/en/linux_packages.html#Amazon-Linux
+COPY nginx.repo /etc/yum.repos.d/nginx.repo
+RUN yum install yum-utils -y && yum-config-manager --enable nginx-stable
+
+
 # Install all necessary packages in one layer
 RUN dnf update -y && \
     dnf install -y \
-    nginx-module-njs \
+    nginx-1.26.2-1.amzn2023.ngx  \
+    nginx-module-njs-1.26.2+0.8.9-1.amzn2023.ngx \
+    nginx-module-perl-1.26.2-2.amzn2023.ngx \
     gcc \
     gcc-c++ \
     git \
@@ -61,7 +69,7 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
     make modules && \
     mkdir -p /etc/nginx/modules/ && \
-    cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules/
+    cp objs/*.so /etc/nginx/modules
 
 # Set up ModSecurity configuration
 RUN mkdir -p /etc/nginx/modsec && \
@@ -84,4 +92,4 @@ RUN echo 'load_module modules/ngx_http_modsecurity_module.so;' > /etc/nginx/modu
 
 EXPOSE 80
 STOPSIGNAL SIGTERM
-# CMD nginx -g 'daemon off;'
+CMD nginx -g 'daemon off;'
