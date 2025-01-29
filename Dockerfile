@@ -44,6 +44,9 @@ RUN dnf update -y && \
 # Set working directory
 WORKDIR /usr/src
 
+RUN wget https://github.com/openresty/headers-more-nginx-module/archive/v0.38.tar.gz && \
+    tar xvzf v0.38.tar.gz
+
 # Clone and install ModSecurity
 RUN git clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLabs/ModSecurity && \
     cd ModSecurity && \
@@ -59,6 +62,7 @@ RUN git clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLa
 RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     tar zxvf nginx-${NGINX_VERSION}.tar.gz
+
 
 # Clone ModSecurity-nginx connector
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
