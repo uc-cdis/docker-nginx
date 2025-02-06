@@ -1,13 +1,23 @@
 name: Build Image and Push
 
-on: push
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to apply to this build. Defaults to 'latest'."
+        default: "latest"
+        required: false
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday at 00:00
+  push:
 
 jobs:
   ci:
     name: Build Image and Push
-    uses: uc-cdis/.github/.github/workflows/image_build_push.yaml@master
+    uses: uc-cdis/.github/.github/workflows/image_build_push_native.yaml@master
     with:
       OVERRIDE_REPO_NAME: "nginx"
+      BUILD_PLATFORMS: "linux/amd64"
     secrets:
       ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
       ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}
