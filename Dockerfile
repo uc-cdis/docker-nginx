@@ -5,10 +5,18 @@ FROM quay.io/cdis/amazonlinux-base:${AZLINUX_BASE_VERSION}
 
 LABEL name="revproxy-nginx-modsec"
 
+
+# https://nginx.org/en/linux_packages.html#Amazon-Linux
+COPY nginx.repo /etc/yum.repos.d/nginx.repo
+RUN yum install yum-utils -y && yum-config-manager --enable nginx-stable
+
+
 # Install all necessary packages in one layer
 RUN dnf update -y && \
     dnf install -y \
-    nginx \
+    nginx-1.26.2-1.amzn2023.ngx  \
+    nginx-module-njs-1.26.2+0.8.9-1.amzn2023.ngx \
+    nginx-module-perl-1.26.2-2.amzn2023.ngx \
     gcc \
     gcc-c++ \
     git \
@@ -34,7 +42,10 @@ RUN dnf update -y && \
     rm -rf /var/cache/yum
 
 # Set working directory
-WORKDIR /opt
+WORKDIR /usr/src
+
+RUN wget https://github.com/openresty/headers-more-nginx-module/archive/v0.38.tar.gz && \
+    tar xvzf v0.38.tar.gz
 
 # Clone and install ModSecurity
 RUN git clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLabs/ModSecurity && \
@@ -52,36 +63,19 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     tar zxvf nginx-${NGINX_VERSION}.tar.gz
 
+
 # Clone ModSecurity-nginx connector
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
 
 # Compile Nginx with ModSecurity module
 RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     cd nginx-${NGINX_VERSION} && \
-    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
+    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx --add-dynamic-module=../headers-more-nginx-module-0.38 && \
     make modules && \
-    mkdir -p /usr/lib64/nginx/modules/ && \
-    cp objs/ngx_http_modsecurity_module.so /usr/lib64/nginx/modules/
-
-# Set up ModSecurity configuration
-RUN mkdir -p /etc/nginx/modsec && \
-    cd /etc/nginx/modsec && \
-    git clone https://github.com/coreruleset/coreruleset.git && \
-    mv coreruleset/crs-setup.conf.example coreruleset/crs-setup.conf && \
-    mv coreruleset/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example \
-       coreruleset/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf && \
-    cp /opt/ModSecurity/modsecurity.conf-recommended /etc/nginx/modsec/modsecurity.conf && \
-    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsec/modsecurity.conf
-
-# Configure Nginx to use ModSecurity
-RUN echo 'load_module modules/ngx_http_modsecurity_module.so;' > /etc/nginx/modules.conf && \
-    echo 'modsecurity on;' > /etc/nginx/conf.d/modsecurity.conf && \
-    echo 'modsecurity_rules_file /etc/nginx/modsec/main.conf;' >> /etc/nginx/conf.d/modsecurity.conf && \
-    echo 'Include /etc/nginx/modsec/modsecurity.conf' > /etc/nginx/modsec/main.conf && \
-    echo 'Include /etc/nginx/modsec/coreruleset/crs-setup.conf' >> /etc/nginx/modsec/main.conf && \
-    echo 'Include /etc/nginx/modsec/coreruleset/rules/*.conf' >> /etc/nginx/modsec/main.conf
+    mkdir -p /etc/nginx/modules/ && \
+    cp objs/*.so /etc/nginx/modules
 
 
 EXPOSE 80
 STOPSIGNAL SIGTERM
-# CMD nginx -g 'daemon off;'
+CMD nginx -g 'daemon off;'

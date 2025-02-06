@@ -14,7 +14,7 @@ on:
 jobs:
   ci:
     name: Build Image and Push
-    uses: uc-cdis/.github/.github/workflows/image_build_push.yaml@master
+    uses: uc-cdis/.github/.github/workflows/image_build_push_native.yaml@master
     with:
       OVERRIDE_REPO_NAME: "nginx"
       BUILD_PLATFORMS: "linux/amd64"
