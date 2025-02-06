@@ -70,7 +70,7 @@ RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
 # Compile Nginx with ModSecurity module
 RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
     cd nginx-${NGINX_VERSION} && \
-    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
+    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && --add-dynamic-module=../headers-more-nginx-module-0.38 && \
     make modules && \
     mkdir -p /etc/nginx/modules/ && \
     cp objs/*.so /etc/nginx/modules
