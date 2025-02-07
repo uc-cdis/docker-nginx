@@ -67,7 +67,7 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
 
 
 # Clone ModSecurity-nginx connector
-RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
+RUN git clone --depth 1 --branch v1.0.3 --single-branch https://github.com/SpiderLabs/ModSecurity-nginx.git
 
 # Compile Nginx with ModSecurity module
 RUN NGINX_VERSION=$(nginx -v 2>&1 | cut -d '/' -f 2) && \
