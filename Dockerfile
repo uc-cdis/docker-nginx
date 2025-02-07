@@ -48,7 +48,9 @@ RUN wget https://github.com/openresty/headers-more-nginx-module/archive/v0.38.ta
     tar xvzf v0.38.tar.gz
 
 # Clone and install ModSecurity
-RUN git clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLabs/ModSecurity && \
+# Pinning modsec due to response being cut off in newest modsec
+#  https://github.com/owasp-modsecurity/ModSecurity-nginx/issues/336
+RUN git clone --depth 1 --branch v3.0.13 --single-branch https://github.com/SpiderLabs/ModSecurity && \
     cd ModSecurity && \
     git submodule init && \
     git submodule update && \
