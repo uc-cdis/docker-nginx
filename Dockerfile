@@ -14,9 +14,9 @@ RUN yum install yum-utils -y && yum-config-manager --enable nginx-stable
 # Install all necessary packages in one layer
 RUN dnf update -y && \
     dnf install -y \
-    nginx-1.26.2-1.amzn2023.ngx  \
-    nginx-module-njs-1.26.2+0.8.9-1.amzn2023.ngx \
-    nginx-module-perl-1.26.2-2.amzn2023.ngx \
+    nginx-1.31.7-1.amzn2023.ngx  \
+    nginx-module-njs-1.31.7+0.8.9-1.amzn2023.ngx \
+    nginx-module-perl-1.31.7-2.amzn2023.ngx \
     gcc \
     gcc-c++ \
     git \
