@@ -8,15 +8,17 @@ LABEL name="revproxy-nginx-modsec"
 
 # https://nginx.org/en/linux_packages.html#Amazon-Linux
 COPY nginx.repo /etc/yum.repos.d/nginx.repo
-RUN yum install yum-utils -y && yum-config-manager --enable nginx-stable
+RUN yum install yum-utils -y && \
+    yum-config-manager --disable nginx-stable && \
+    yum-config-manager --enable nginx-mainline
 
 
 # Install all necessary packages in one layer
 RUN dnf update -y && \
     dnf install -y \
-    nginx-1.30.6-1.amzn2023.ngx  \
-    nginx-module-njs-1.30.6+1.0.2-1.amzn2023.ngx \
-    nginx-module-perl-1.30.6-1.amzn2023.ngx \
+    nginx-1.31.9-1.amzn2023.ngx  \
+    nginx-module-njs-1.31.9+1.0.2-1.amzn2023.ngx \
+    nginx-module-perl-1.31.9-1.amzn2023.ngx \
     gcc \
     gcc-c++ \
     git \
